@@ -1,0 +1,26 @@
+erDiagram
+  sku {
+    string sku PK
+    string sku_name
+    string inn_name
+    string manufacturer_name
+    string drug_form
+    string category
+    boolean is_rx
+    boolean is_vital
+    decimal pack_qty
+    boolean is_active
+    timestamp updated_at
+  }
+  price {
+    string sku
+    string price_scope
+    string scope_bk
+    decimal price
+    string currency
+    timestamp valid_from
+    timestamp valid_to
+    boolean is_current
+    timestamp updated_at
+  }
+  sku ||--o{ price : sku

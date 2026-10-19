@@ -1,0 +1,11 @@
+CREATE ROLE replicator WITH REPLICATION LOGIN PASSWORD 'repl_dev_only';
+CREATE ROLE app LOGIN PASSWORD 'app_dev_only';
+CREATE ROLE checker LOGIN PASSWORD 'checker_dev_only';
+CREATE DATABASE crm_service_db;
+CREATE DATABASE catalog_service_db;
+CREATE DATABASE pos_service_db;
+CREATE DATABASE wms_service_db;
+GRANT CONNECT ON DATABASE crm_service_db TO app, checker;
+GRANT CONNECT ON DATABASE catalog_service_db TO app, checker;
+GRANT CONNECT ON DATABASE pos_service_db TO app, checker;
+GRANT CONNECT ON DATABASE wms_service_db TO app, checker;

@@ -1,0 +1,52 @@
+erDiagram
+  pharmacy {
+    string pharmacy_bk PK
+    string pharmacy_name
+    string region
+    string city
+    string address
+    date opened_at
+    date closed_at
+    boolean is_active
+    timestamp updated_at
+  }
+  receipt {
+    string receipt_bk PK
+    string pharmacy_bk
+    string customer_bk
+    string cashier_bk
+    string shift_bk
+    timestamp receipt_dt
+    string doc_type
+    string parent_receipt_bk
+    decimal total_amount
+    decimal discount_amount
+    string currency
+    string prescription_bk
+    timestamp updated_at
+  }
+  receipt_line {
+    string receipt_bk PK
+    bigint line_no PK
+    string sku
+    string batch_bk
+    decimal quantity
+    decimal unit_price
+    decimal line_discount
+    decimal line_amount
+    boolean is_rx_snapshot
+    string sku_name_snapshot
+    timestamp updated_at
+  }
+  payment {
+    string receipt_bk PK
+    bigint payment_no PK
+    string payment_method
+    decimal amount
+    string currency
+    timestamp updated_at
+  }
+  pharmacy ||--o{ receipt : pharmacy_bk
+  receipt ||--o{ receipt_line : receipt_bk
+  receipt ||--o{ payment : receipt_bk
+  receipt ||--o{ receipt : parent_receipt_bk

@@ -1,0 +1,59 @@
+name: hw01-pharmacy
+services:
+  postgres:
+    image: postgres:16
+    container_name: hw01-postgres
+    environment:
+      POSTGRES_USER: postgres
+      POSTGRES_PASSWORD: postgres_dev_only
+      POSTGRES_DB: postgres
+      POSTGRES_INITDB_ARGS: "--auth-host=scram-sha-256"
+    command: ["postgres", "-c", "wal_level=logical", "-c", "max_wal_senders=10", "-c", "max_replication_slots=10", "-c", "hot_standby=on", "-c", "listen_addresses=*", "-c", "password_encryption=scram-sha-256"]
+    ports: ["5432:5432"]
+    volumes:
+      - pgdata:/var/lib/postgresql/data
+      - ./infra/init:/docker-entrypoint-initdb.d:ro
+      - ./migrations:/migrations:ro
+    healthcheck:
+      test: ["CMD-SHELL", "pg_isready -U postgres"]
+      interval: 5s
+      timeout: 3s
+      retries: 40
+    networks: [hw]
+  pgbouncer:
+    image: edoburu/pgbouncer:v1.23.1-p3
+    container_name: hw01-pgbouncer
+    environment:
+      DATABASE_URL: "postgres://postgres:postgres_dev_only@postgres:5432/postgres"
+      AUTH_TYPE: scram-sha-256
+      POOL_MODE: transaction
+      MAX_CLIENT_CONN: 300
+      DEFAULT_POOL_SIZE: 30
+      IGNORE_STARTUP_PARAMETERS: extra_float_digits
+    ports: ["6432:5432"]
+    depends_on:
+      postgres:
+        condition: service_healthy
+    networks: [hw]
+  replica:
+    image: postgres:16
+    container_name: hw01-replica
+    environment:
+      PGPASSWORD: repl_dev_only
+    command: ["bash", "-lc", "until pg_isready -h postgres -U replicator; do sleep 2; done; if [ ! -s /var/lib/postgresql/data/PG_VERSION ]; then pg_basebackup -h postgres -D /var/lib/postgresql/data -U replicator -Fp -Xs -P -R -C -S hw01_standby_slot; fi; chown -R postgres:postgres /var/lib/postgresql/data; chmod 700 /var/lib/postgresql/data; exec su postgres -c \"/usr/lib/postgresql/16/bin/postgres -D /var/lib/postgresql/data -c hot_standby=on -c listen_addresses='*'\""]
+    ports: ["5434:5432"]
+    volumes: [replicadata:/var/lib/postgresql/data]
+    depends_on:
+      postgres:
+        condition: service_healthy
+    healthcheck:
+      test: ["CMD-SHELL", "pg_isready -U postgres"]
+      interval: 5s
+      timeout: 3s
+      retries: 40
+    networks: [hw]
+networks:
+  hw:
+volumes:
+  pgdata:
+  replicadata:

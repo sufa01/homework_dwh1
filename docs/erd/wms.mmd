@@ -1,0 +1,67 @@
+erDiagram
+  supplier {
+    string supplier_bk PK
+    string supplier_name
+    string country
+    boolean is_active
+    timestamp updated_at
+  }
+  distribution_center {
+    string dc_bk PK
+    string dc_name
+    string region
+    string city
+    boolean is_active
+    timestamp updated_at
+  }
+  batch {
+    string batch_bk PK
+    string sku
+    string series_no
+    date manufactured_date
+    date expiry_date
+    timestamp received_at
+    timestamp updated_at
+  }
+  purchase_line {
+    string purchase_bk PK
+    bigint line_no PK
+    string supplier_bk
+    string dc_bk
+    string sku
+    string batch_bk
+    timestamp ordered_at
+    timestamp received_at
+    decimal quantity
+    decimal unit_cost
+    decimal line_cost
+    string currency
+    timestamp updated_at
+  }
+  movement {
+    string movement_bk PK
+    string batch_bk
+    string sku
+    string movement_type
+    string src_type
+    string src_bk
+    string dst_type
+    string dst_bk
+    decimal qty
+    timestamp dispatched_at
+    timestamp moved_at
+    timestamp updated_at
+  }
+  stock {
+    string location_type PK
+    string location_bk PK
+    string sku
+    string batch_bk PK
+    decimal qty_on_hand
+    timestamp updated_at
+  }
+  supplier ||--o{ purchase_line : supplier_bk
+  batch ||--o{ purchase_line : batch_bk
+  distribution_center ||--o{ purchase_line : dc_bk
+  batch ||--o{ stock : batch_bk
+  batch ||--o{ movement : batch_bk

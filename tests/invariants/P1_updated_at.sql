@@ -1,0 +1,1 @@
+WITH before AS (SELECT sku,updated_at FROM app.sku LIMIT 1), upd AS (UPDATE app.sku SET sku_name=sku_name||' test' WHERE sku=(SELECT sku FROM before) RETURNING sku,updated_at) SELECT (upd.updated_at>before.updated_at) AS ok FROM upd JOIN before USING(sku);

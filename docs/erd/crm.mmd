@@ -1,0 +1,22 @@
+erDiagram
+  customer {
+    string customer_bk PK
+    bigint birth_year
+    string sex
+    string city
+    string region
+    string loyalty_level
+    boolean marketing_opt_in
+    timestamp registered_at
+    timestamp updated_at
+  }
+  loyalty_card {
+    string card_bk PK
+    string customer_bk
+    timestamp issued_at
+    timestamp closed_at
+    string status
+    decimal bonus_balance
+    timestamp updated_at
+  }
+  customer ||--o{ loyalty_card : customer_bk

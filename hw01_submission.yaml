@@ -1,0 +1,44 @@
+# Локальные значения для учебного стенда. Не использовать в production.
+connections:
+  master:
+    crm: postgresql://postgres:postgres_dev_only@localhost:5432/crm_service_db
+    catalog: postgresql://postgres:postgres_dev_only@localhost:5432/catalog_service_db
+    pos: postgresql://postgres:postgres_dev_only@localhost:5432/pos_service_db
+    wms: postgresql://postgres:postgres_dev_only@localhost:5432/wms_service_db
+  replica:
+    crm: postgresql://postgres:postgres_dev_only@localhost:5434/crm_service_db
+    catalog: postgresql://postgres:postgres_dev_only@localhost:5434/catalog_service_db
+    pos: postgresql://postgres:postgres_dev_only@localhost:5434/pos_service_db
+    wms: postgresql://postgres:postgres_dev_only@localhost:5434/wms_service_db
+  admin:
+    crm: postgresql://postgres:postgres_dev_only@localhost:5432/crm_service_db
+    catalog: postgresql://postgres:postgres_dev_only@localhost:5432/catalog_service_db
+    pos: postgresql://postgres:postgres_dev_only@localhost:5432/pos_service_db
+    wms: postgresql://postgres:postgres_dev_only@localhost:5432/wms_service_db
+  writer:
+    crm: postgresql://postgres:postgres_dev_only@localhost:5432/crm_service_db
+    catalog: postgresql://postgres:postgres_dev_only@localhost:5432/catalog_service_db
+    pos: postgresql://postgres:postgres_dev_only@localhost:5432/pos_service_db
+    wms: postgresql://postgres:postgres_dev_only@localhost:5432/wms_service_db
+entrypoint:
+  seed_delta: "bash scripts/seed.sh --delta"
+ha:
+  mode: replica
+  pooler_dsn: postgresql://postgres:postgres_dev_only@localhost:6432/postgres
+  journal: docs/failover_journal.md
+invariants:
+  I1: {service: catalog, file: tests/invariants/I1_bk_unique.sql, expect_sqlstate: "23505"}
+  I2: {service: catalog, file: tests/invariants/I2_bk_immutable.sql, expect_sqlstate: "P0001"}
+  I3: {service: pos, file: tests/invariants/I3_receipt_total.sql, expect_sqlstate: "P0001"}
+  I4: {service: pos, file: tests/invariants/I4_line_math.sql, expect_sqlstate: "23514"}
+  I5: {service: catalog, file: tests/invariants/I5_price_overlap.sql, expect_sqlstate: "23P01"}
+  I6: {service: catalog, file: tests/invariants/I6_single_current.sql, expect_sqlstate: "23505"}
+  I7: {service: wms, file: tests/invariants/I7_stock_negative.sql, expect_sqlstate: "23514"}
+  I8: {service: pos, file: tests/invariants/I8_sell_expired.sql, expect_sqlstate: "P0001"}
+  I9: {service: wms, file: tests/invariants/I9_receive_expired.sql, expect_sqlstate: "P0001"}
+  I10: {service: pos, file: tests/invariants/I10_rx_no_script.sql, expect_sqlstate: "P0001"}
+  I11: {service: pos, file: tests/invariants/I11_refund_excess.sql, expect_sqlstate: "P0001"}
+  I12: {service: pos, file: tests/invariants/I12_payment_total.sql, expect_sqlstate: "P0001"}
+positive_tests:
+  P1: {service: crm, file: tests/invariants/P1_updated_at.sql}
+  P2: {service: crm, file: tests/invariants/P2_soft_delete.sql}

@@ -1,0 +1,1 @@
+UPDATE app.customer SET deleted_at=clock_timestamp() WHERE customer_bk=(SELECT customer_bk FROM app.customer WHERE deleted_at IS NULL LIMIT 1); SELECT EXISTS(SELECT 1 FROM app.customer WHERE deleted_at IS NOT NULL AND email IS NULL AND phone IS NULL AND NOT EXISTS(SELECT 1 FROM contract.v_customer v WHERE v.customer_bk=app.customer.customer_bk)) AS ok;
